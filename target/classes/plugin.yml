@@ -1,3 +1,10 @@
 name: mcRoyale
-main: com.mileses.mcRoyale.McRoyale
+main: com.mileses.mcroyale.McRoyale
 version: 0.01
+author: nick
+commands:
+  royale:
+    description: Top level hunger games command
+    usage: /<command> help
+    permission: McRoyale.royale
+    permission-message: You don't have <permission>
