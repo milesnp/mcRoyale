@@ -25,11 +25,11 @@ public final class McRoyale extends JavaPlugin {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if(cmd.getName().equalsIgnoreCase("royale")) {
 			//check for arguments (subcommands)
-			if(args[0].equalsIgnoreCase("help")) {
-				sender.sendMessage("/royale wall <length>");
-				sender.sendMessage("/royale wall <length> <x> <z>");
-			}
 			if (args.length > 0) {
+				//check for help
+				if(args[0].equalsIgnoreCase("help")) {
+					sender.sendMessage("/royale wall <length> OR /royale wall <length> <x> <z>");
+				}
 				// check for wall command
 				if (args[0].equalsIgnoreCase("wall") ) {
 					//check length if sender is Player
@@ -53,18 +53,18 @@ public final class McRoyale extends JavaPlugin {
 								// check all args for integership
 								int iLength;
 								int ix;
-								int iy;
+								int iz;
 								try {
-									 iLength = Integer.parseInt(args[1]);
+									 iLength = Math.abs(Integer.parseInt(args[1]));
 									 ix = Integer.parseInt(args[2]);
-									 iy = Integer.parseInt(args[3]);
+									 iz = Integer.parseInt(args[3]);
 								}
 								catch (NumberFormatException e) {
 									sender.sendMessage("Argument should be a whole number.");
 									return false;
 								}
 								World world = Bukkit.getServer().getWorld("World");
-								Location location = new Location(world,(double) ix,(double) iy, 0);
+								Location location = new Location(world, ix, 0, iz);
 								generateWalls(location, iLength);
 								return true;
 							}
@@ -89,7 +89,7 @@ public final class McRoyale extends JavaPlugin {
 	}
 
 	public void generateWalls(Location loc, int length) {
-		getLogger().info("generating walls of length " + Integer.toString(length));
+		getLogger().info("generating walls of length " + Integer.toString(length) + " at " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ());
 		//get corner relative to player position
 		//uses getBlockN() instead of getN()
 		int x1 = loc.getBlockX() - (length / 2);
@@ -104,7 +104,7 @@ public final class McRoyale extends JavaPlugin {
 		World world = loc.getWorld();
 		
 		//loop z
-		getLogger().info("wall loop start");
+		getLogger().info("wall loop started");
 		for (int yPoint = y1; yPoint <= y2; yPoint++) {
 			//loop x 
 	
@@ -130,6 +130,6 @@ public final class McRoyale extends JavaPlugin {
 				}
 				
 		}
-		getLogger().info("wall loop done");
+		getLogger().info("wall loop complete");
 	}
 }
