@@ -12,14 +12,17 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class McRoyale extends JavaPlugin {
+	private static McRoyale instance;
 	@Override
 	public void onEnable() {
 		//TODO initializaiton logic	
-		getServer().getPluginManager().registerEvents(new deathListener(), this);
+		instance = this;
+		getServer().getPluginManager().registerEvents(new McRoyaleDeathListener(), this);
 	}
-
+	
 	@Override
 	public void onDisable() {
+		instance = null;
 		//TODO disable logic
 	}
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -132,5 +135,8 @@ public final class McRoyale extends JavaPlugin {
 				
 		}
 		getLogger().info("wall loop complete");
+	}
+	public static McRoyale getInst() {
+		return instance;
 	}
 }
