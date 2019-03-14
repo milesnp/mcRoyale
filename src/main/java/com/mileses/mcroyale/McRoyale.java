@@ -15,7 +15,7 @@ public final class McRoyale extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		//TODO initializaiton logic	
-
+		getServer().getPluginManager().registerEvents(new deathListener(), this);
 	}
 
 	@Override
