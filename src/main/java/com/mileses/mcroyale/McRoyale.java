@@ -4,13 +4,11 @@ package com.mileses.mcroyale;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class McRoyale extends JavaPlugin {
@@ -85,14 +83,6 @@ public final class McRoyale extends JavaPlugin {
 		
 		return false;
 		
-	}
-	public void onEvent(PlayerDeathEvent e) {
-		Player player = e.getEntity();
-		if (player.getKiller() instanceof Player) {
-			Player killer = player.getKiller();
-			World world = killer.getWorld();
-			world.playSound(killer.getLocation(), Sound.EXPLODE, 200, 1);
-		}
 	}
 	
 	public boolean isInt(String s) {
