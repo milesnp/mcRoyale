@@ -4,11 +4,13 @@ package com.mileses.mcroyale;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class McRoyale extends JavaPlugin {
@@ -34,32 +36,30 @@ public final class McRoyale extends JavaPlugin {
 				if (args[0].equalsIgnoreCase("wall") ) {
 					//check length if sender is Player
 					if ((sender instanceof Player) && (args.length == 2)) {
-							int iLength;
+							
 							//check for Integer
-							try {
-								 iLength = Integer.parseInt(args[1]);
-							}
-							catch (NumberFormatException e) {
+							if (!isInt(args[1])) {
 								sender.sendMessage("Argument should be a whole number.");
 								return false;
 							}
-							
+							int iLength = Integer.parseInt(args[1]);
 							generateWalls(((Player) sender).getLocation(), iLength);
 							return true;
 						}
 						else {
 							//check if coords are given
 							if (args.length == 4) {
-								// check all args for integership
+								// check args for integership
 								int iLength;
 								int ix;
 								int iz;
-								try {
-									 iLength = Math.abs(Integer.parseInt(args[1]));
+								if (isInt(args[1]) && isInt(args[2]) && isInt(args[3])){
+									 iLength = Integer.parseInt(args[1]);
 									 ix = Integer.parseInt(args[2]);
 									 iz = Integer.parseInt(args[3]);
 								}
-								catch (NumberFormatException e) {
+								else
+								{
 									sender.sendMessage("Argument should be a whole number.");
 									return false;
 								}
@@ -68,8 +68,7 @@ public final class McRoyale extends JavaPlugin {
 								generateWalls(location, iLength);
 								return true;
 							}
-							else {
-								if (sender instanceof Player) {
+							else if (sender instanceof Player) {
 									sender.sendMessage("Wrong number of arguments. Should be 2 or 4, not: " + Integer.toString(args.length));
 									return false;
 								}
@@ -77,7 +76,7 @@ public final class McRoyale extends JavaPlugin {
 									sender.sendMessage("Must use 4 arguments in console.");
 									return false;
 								}
-							}
+							
 						
 							}
 						}
@@ -87,19 +86,31 @@ public final class McRoyale extends JavaPlugin {
 		return false;
 		
 	}
-
+	public void onEvent(PlayerDeathEvent e) {
+		Player player = e.getEntity();
+		if (player.getKiller() instanceof Player) {
+			Player killer = player.getKiller();
+			World world = killer.getWorld();
+			world.playSound(killer.getLocation(), Sound.EXPLODE, 200, 1);
+		}
+	}
+	
+	public boolean isInt(String s) {
+		return s.matches("-?\\d+");
+	}
 	public void generateWalls(Location loc, int length) {
 		getLogger().info("generating walls of length " + Integer.toString(length) + " at " + loc.getX() + ", " + loc.getY() + ", " + loc.getZ());
 		//get corner relative to player position
 		//uses getBlockN() instead of getN()
-		int x1 = loc.getBlockX() - (length / 2);
+		int absLength = Math.abs(length);
+		int x1 = loc.getBlockX() - (absLength / 2);
 		int y1 = 0;
-		int z1 = loc.getBlockZ() - (length / 2);
+		int z1 = loc.getBlockZ() - (absLength / 2);
 		
 		// create opposite corner adding length
-		int x2 = x1 + length;
+		int x2 = x1 + absLength;
 		int y2 = 150;
-		int z2 = z1 + length;
+		int z2 = z1 + absLength;
 		
 		World world = loc.getWorld();
 		
