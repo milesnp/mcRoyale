@@ -17,6 +17,7 @@ public final class McRoyaleDeathListener implements Listener{
 		//harvest info 
 		//report for debug
 		Bukkit.getLogger().info("death occurs");
+		//get player and location
 		 Player player = e.getEntity();
 		 final Location location = player.getLocation();
 		 final World world = player.getWorld();
