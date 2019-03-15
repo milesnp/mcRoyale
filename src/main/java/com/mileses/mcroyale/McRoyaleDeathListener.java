@@ -8,29 +8,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import de.myzelyam.api.vanish.VanishAPI;
 
 public final class McRoyaleDeathListener implements Listener{
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		//harvest info 
+		//report for debug
 		Bukkit.getLogger().info("death occurs");
-		Player player = e.getEntity();
-		final Location location = player.getLocation();
-
-		final World world = player.getWorld();
+		 Player player = e.getEntity();
+		 final Location location = player.getLocation();
+		 final World world = player.getWorld();
+		//check if killed by a player
 		if ((player.getKiller() instanceof Player)) {
 			Bukkit.getLogger().info("death by player");
 			Player killer = player.getKiller();
-			BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-			scheduler.scheduleSyncDelayedTask(McRoyale.getInst(), new Runnable() {
-				@Override
-				public void run() {
-					location.setY(100);
-					world.playSound(location, Sound.EXPLODE, 220, 1);
+			if (Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish")) {
+				VanishAPI.hidePlayer(player);
 				}
-			}, 20L);
+			new McRoyaleDeathRunnable(world,location).runTaskLater(McRoyale.getInst(), 300L);
 			Bukkit.broadcastMessage(killer.getName()+" killed "+player.getName());
 		}
 		else Bukkit.getLogger().info("not by player");

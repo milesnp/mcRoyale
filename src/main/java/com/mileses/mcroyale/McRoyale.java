@@ -33,6 +33,11 @@ public final class McRoyale extends JavaPlugin {
 				if(args[0].equalsIgnoreCase("help")) {
 					sender.sendMessage("/royale wall <length> OR /royale wall <length> <x> <z>");
 				}
+				//check for testdeath command TODO remove
+				if ((args[0].equalsIgnoreCase("testdeath") && (sender instanceof Player))) {
+					new McRoyaleDeathRunnable(((Player) sender).getWorld(),((Player) sender).getLocation()).runTaskLater(McRoyale.getInst(), 300L);
+					return true;
+				}
 				// check for wall command
 				if (args[0].equalsIgnoreCase("wall") ) {
 					//check length if sender is Player
