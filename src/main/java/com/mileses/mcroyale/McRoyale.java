@@ -23,7 +23,7 @@ import de.myzelyam.api.vanish.VanishAPI;
 public final class McRoyale extends JavaPlugin {
 	private static McRoyale instance;
 	private static Logger logger;
-	public HashSet<String> playerlist;
+	public HashMap<String, Boolean> playerlist;
 	
 	@Override
 	public void onEnable() {
@@ -32,7 +32,8 @@ public final class McRoyale extends JavaPlugin {
 		logger = getLogger();
 		McRoyaleDeathListener mrdl = new McRoyaleDeathListener(this);
 		getServer().getPluginManager().registerEvents(mrdl, this);
-		for (Player x : Bukkit.getOnlinePlayers()) playerlist.add(x.getName());
+		for (Player x : Bukkit.getOnlinePlayers()) playerlist.put(x.getName(), true);
+		playerlist = new HashMap<String, Boolean>();
 	}
 	
 	@Override
@@ -167,8 +168,12 @@ public final class McRoyale extends JavaPlugin {
 						else return false;
 						//list all players
 						
-						for (Player x : Bukkit.getOnlinePlayers()) playerlist.add(x.getName());
-						
+						for (Player x : Bukkit.getOnlinePlayers())
+							{
+							if (x instanceof Player) {
+							playerlist.put(x.getName(), true);
+							}
+							}
 						//start round
 						generateWalls(location,length);
 						McRoyaleRound.startRound(location, length, playerlist, (Player) sender, peacetime);

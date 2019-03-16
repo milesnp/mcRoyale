@@ -1,6 +1,7 @@
 package com.mileses.mcroyale;
 
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.bukkit.Bukkit;
@@ -11,12 +12,11 @@ import de.myzelyam.api.vanish.VanishAPI;
 
 public final class McRoyaleRound {
 	
-	public static void startRound(Location location, int length, HashSet<String> list, Player sender, int peacetime) {
+	public static void startRound(Location location, int length, HashMap<String, Boolean> list, Player sender, int peacetime) {
 
 		String playerString = "";
-		for (String n: list) {
-			sender.sendMessage(n);
-			Player p = McRoyale.getInst().getServer().getPlayer(n);
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			sender.sendMessage(p.getName() + list.get(p.getName()));
 			//reset player to full, healed, clear and visible.
 			VanishAPI.showPlayer(p);
 			McRoyale.getLogr().info("show player " + p.getName());
@@ -29,6 +29,7 @@ public final class McRoyaleRound {
 		}
 		//calculate min distance between players
 		int distance = length / (list.size() + 1);
+		if (distance < 49) distance = 49;
 		//int distance = 40;
 		//run command /spreadplayers x z distance teams player player player player player player player etc.
 		McRoyale.getLogr().info("running spreadplayers..");
@@ -37,9 +38,8 @@ public final class McRoyaleRound {
 	Bukkit.dispatchCommand(Bukkit.getConsoleSender(), commandString);
 	McRoyale.getLogr().info("players spread.");
 	//set bed spawns
-	for (String n: list) {
-		// set respawn location
-		Player p = McRoyale.getInst().getServer().getPlayer(n);
+	for (Player p : Bukkit.getOnlinePlayers()) {
+		// set respawn location TODO make this work. probably just make listener for respawn event and tp to this point using hashmap
 		p.setBedSpawnLocation(p.getLocation(),true);
 	}
 	}

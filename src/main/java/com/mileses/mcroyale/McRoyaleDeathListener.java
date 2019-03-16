@@ -37,9 +37,14 @@ public class McRoyaleDeathListener implements Listener{
 				}
 			else player.sendMessage("You've been eliminated. Please avoid interfering with play. Sorry you're far away now.");
 			killer.sendMessage("You killed " + player.getName() + ". Congrats!");
-			pl.playerlist.remove(player.getName());
+			pl.playerlist.put(player.getName(),false);
 			new McRoyaleDeathRunnable(world,location).runTaskLater(McRoyale.getInst(), 200L);
-			if (pl.playerlist.size() == 1) {
+			int activeplayers = 0;
+			for (Player p : Bukkit.getOnlinePlayers()) {
+				if (pl.playerlist.get(p.getName()))
+					activeplayers++;
+			}
+			if (activeplayers == 1) {
 				killer.sendMessage("VICTORY ROYALE!");
 			}
 		}
