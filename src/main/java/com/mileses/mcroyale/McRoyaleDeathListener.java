@@ -1,7 +1,6 @@
 package com.mileses.mcroyale;
 
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -10,7 +9,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import de.myzelyam.api.vanish.VanishAPI;
 
-public final class McRoyaleDeathListener implements Listener{
+public class McRoyaleDeathListener implements Listener{
+	McRoyale pl;
+	public McRoyaleDeathListener(McRoyale plugin) {
+		pl = plugin;
+	}
+	
+	
 	@EventHandler
 	public void onPlayerDeath(PlayerDeathEvent e) {
 		//harvest info 
@@ -27,16 +32,21 @@ public final class McRoyaleDeathListener implements Listener{
 			//check for SuperVanish installed, vanish if present
 			if (Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish")) {
 				VanishAPI.hidePlayer(player);
-				
+				// set respawn location
 				player.sendMessage("You've been eliminated. Entering Spectator mode.");
 				}
-			else player.sendMessage("You've been eliminated. Please avoid interfering with play.");
-			// spectator mode to prevent interference.
-			player.setGameMode(GameMode.SPECTATOR);
+			else player.sendMessage("You've been eliminated. Please avoid interfering with play. Sorry you're far away now.");
+			killer.sendMessage("You killed " + player.getName() + ". Congrats!");
+			pl.playerlist.remove(player.getName());
 			new McRoyaleDeathRunnable(world,location).runTaskLater(McRoyale.getInst(), 200L);
+			if (pl.playerlist.size() == 1) {
+				killer.sendMessage("VICTORY ROYALE!");
+			}
 		}
-		else Bukkit.getLogger().info(player.getName()+" killed not by player");
-
+		else {
+			Bukkit.getLogger().info(player.getName()+" killed not by player");
+			player.sendMessage("You were not killed by a player. You are still in play.");
+		}
 	}
 		
 
