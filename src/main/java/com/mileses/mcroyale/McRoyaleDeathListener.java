@@ -1,6 +1,7 @@
 package com.mileses.mcroyale;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -23,12 +24,16 @@ public final class McRoyaleDeathListener implements Listener{
 		if ((player.getKiller() instanceof Player)) {
 			Player killer = player.getKiller();
 			Bukkit.getLogger().info(player.getName()+" died by player " + killer.getName());
+			//check for SuperVanish installed, vanish if present
 			if (Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish")) {
 				VanishAPI.hidePlayer(player);
+				
 				player.sendMessage("You've been eliminated. Entering Spectator mode.");
 				}
 			else player.sendMessage("You've been eliminated. Please avoid interfering with play.");
-			new McRoyaleDeathRunnable(world,location).runTaskLater(McRoyale.getInst(), 300L);
+			// spectator mode to prevent interference.
+			player.setGameMode(GameMode.SPECTATOR);
+			new McRoyaleDeathRunnable(world,location).runTaskLater(McRoyale.getInst(), 200L);
 		}
 		else Bukkit.getLogger().info(player.getName()+" killed not by player");
 
