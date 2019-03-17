@@ -19,22 +19,25 @@ public final class McRoyaleRound {
 			sender.sendMessage(p.getName() + list.get(p.getName()));
 			//reset player to full, healed, clear and visible.
 			VanishAPI.showPlayer(p);
-			McRoyale.getLogr().info("show player " + p.getName());
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getMaxHealth());
 			p.setFoodLevel(20);;
-			p.getInventory().clear();
+			clearInv(p);
 			playerString = playerString.concat(" " + p.getName());
-			McRoyale.getLogr().info(playerString);
 		}
+		McRoyale.getLogr().info("start round with players: " + playerString);
+		McRoyale.roundActive = true;
 		//calculate min distance between players
 		int distance = length / (list.size() + 1);
-		if (distance < 49) distance = 49;
-		//int distance = 40;
+		if (distance >= length/2) 
+			{
+			distance = length/2 - 1;
+			}
+
 		//run command /spreadplayers x z distance teams player player player player player player player etc.
 		McRoyale.getLogr().info("running spreadplayers..");
 		String commandString ="spreadplayers " + Integer.toString(location.getBlockX()) + " " + Integer.toString(location.getBlockZ()) + " " + Integer.toString(distance) + " " + Integer.toString((length/2) -1) + " false" + playerString;
-		Bukkit.broadcastMessage(commandString);
+		McRoyale.getLogr().info(commandString);
 	Bukkit.dispatchCommand(Bukkit.getConsoleSender(), commandString);
 	McRoyale.getLogr().info("players spread.");
 	//set bed spawns
@@ -43,5 +46,11 @@ public final class McRoyaleRound {
 		p.setBedSpawnLocation(p.getLocation(),true);
 	}
 	}
-
+	public static void clearInv(Player player){
+		player.getInventory().clear();
+		player.getInventory().setHelmet(null);
+		player.getInventory().setChestplate(null);
+		player.getInventory().setLeggings(null);
+		player.getInventory().setBoots(null);
+		}
 }

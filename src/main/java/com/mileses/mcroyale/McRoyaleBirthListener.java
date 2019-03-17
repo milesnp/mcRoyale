@@ -1,5 +1,7 @@
 package com.mileses.mcroyale;
 
+
+import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -11,15 +13,18 @@ public class McRoyaleBirthListener implements Listener{
 	McRoyale pl;
 
 	public McRoyaleBirthListener(McRoyale plugin) {
-		// TODO Auto-generated constructor stub
+		pl = plugin;
 	}
 
 
 	@EventHandler
 	public void onPlayerRespawn(PlayerRespawnEvent e) {
 		String playername = e.getPlayer().getName();
-		if (!pl.playerlist.get(playername)) {
-			e.getPlayer().getInventory().addItem(CompassRadar.getTracker());
+		if (McRoyale.roundActive) {
+			if (!pl.playerList.containsKey(playername) || !pl.playerList.get(playername)) {
+				e.getPlayer().getInventory().addItem(CompassRadar.getTracker());
+				new McRoyaleBirthRunnable(e.getPlayer()).runTaskLater(McRoyale.getInst(), 2L);
+			}
 		}
 	}
 }

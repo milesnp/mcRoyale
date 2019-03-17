@@ -23,7 +23,8 @@ import de.myzelyam.api.vanish.VanishAPI;
 public final class McRoyale extends JavaPlugin {
 	private static McRoyale instance;
 	private static Logger logger;
-	public HashMap<String, Boolean> playerlist;
+	public static boolean roundActive;
+	public HashMap<String, Boolean> playerList;
 	
 	@Override
 	public void onEnable() {
@@ -31,9 +32,12 @@ public final class McRoyale extends JavaPlugin {
 		instance = this;
 		logger = getLogger();
 		McRoyaleDeathListener mrdl = new McRoyaleDeathListener(this);
+		McRoyaleBirthListener mrbl = new McRoyaleBirthListener(this);
 		getServer().getPluginManager().registerEvents(mrdl, this);
-		for (Player x : Bukkit.getOnlinePlayers()) playerlist.put(x.getName(), true);
-		playerlist = new HashMap<String, Boolean>();
+		getServer().getPluginManager().registerEvents(mrbl, this);;
+		for (Player x : Bukkit.getOnlinePlayers()) playerList.put(x.getName(), true);
+		playerList = new HashMap<String, Boolean>();
+		roundActive = false;
 	}
 	
 	@Override
@@ -137,13 +141,25 @@ public final class McRoyale extends JavaPlugin {
 						}
 				//end wall command
 				
+				//check for manual start command
+				if (args[0].equalsIgnoreCase("start")) {
+					roundActive = true;
+					Bukkit.broadcastMessage("Starting round with no automation. Good luck!");
+				}
+				//end manual start command
+				
 				//check for round command and for args
 				if (args[0].equalsIgnoreCase("round") && args.length >= 3) {
 						Location location;
 						//check that optional x z args are missing
-						if (!(args.length >= 5)) {
-							//TODO set location here then continue
-							location = ((Player) sender).getLocation();
+						if ((args.length < 5)) {
+							if (sender instanceof Player) {
+								location = ((Player) sender).getLocation();
+							}
+							else {
+								sender.sendMessage("console round start requires coords.");
+								return false;
+							}
 						}
 						//check that x and z are integers and set location accordingly
 						else if (isInt(args[3]) && isInt(args[4])){
@@ -174,12 +190,12 @@ public final class McRoyale extends JavaPlugin {
 						for (Player x : Bukkit.getOnlinePlayers())
 							{
 							if (x instanceof Player) {
-							playerlist.put(x.getName(), true);
+							playerList.put(x.getName(), true);
 							}
 							}
 						//start round
 						generateWalls(location,length);
-						McRoyaleRound.startRound(location, length, playerlist, (Player) sender, peacetime);
+						McRoyaleRound.startRound(location, length, playerList, (Player) sender, peacetime);
 						return true;
 						
 				}
