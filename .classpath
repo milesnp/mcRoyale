@@ -35,5 +35,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="D:/Documents/1.8.9/plugins/SuperVanish.jar"/>
+	<classpathentry kind="lib" path="D:/Documents/1.8.9/plugins/compassradar-0.0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

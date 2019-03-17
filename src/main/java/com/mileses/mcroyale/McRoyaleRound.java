@@ -22,7 +22,7 @@ public final class McRoyaleRound {
 			McRoyale.getLogr().info("show player " + p.getName());
 			p.setGameMode(GameMode.SURVIVAL);
 			p.setHealth(p.getMaxHealth());
-			p.setFoodLevel(15);;
+			p.setFoodLevel(20);;
 			p.getInventory().clear();
 			playerString = playerString.concat(" " + p.getName());
 			McRoyale.getLogr().info(playerString);

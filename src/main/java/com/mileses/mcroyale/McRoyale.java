@@ -165,9 +165,12 @@ public final class McRoyale extends JavaPlugin {
 						else return false;
 						//check length is int and set
 						if (isInt(args[1])) length = Integer.parseInt(args[1]);
+						else if (args[1].equalsIgnoreCase("auto")) {
+							int playercount = Bukkit.getOnlinePlayers().size();
+							length = (int) Math.sqrt(10000*playercount);
+						}
 						else return false;
 						//list all players
-						
 						for (Player x : Bukkit.getOnlinePlayers())
 							{
 							if (x instanceof Player) {
