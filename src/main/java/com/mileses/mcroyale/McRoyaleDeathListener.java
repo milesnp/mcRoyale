@@ -41,7 +41,7 @@ public class McRoyaleDeathListener implements Listener{
 			new McRoyaleDeathRunnable(world,location).runTaskLater(McRoyale.getInst(), 200L);
 
 			for (Player p : Bukkit.getOnlinePlayers()) {
-				if (pl.playerList.get(p.getName())) {
+				if (pl.playerList.containsKey(p.getName()) && pl.playerList.get(p.getName())) {
 					McRoyale.getLogr().info("player is active: " + p.getName());
 					activeplayers++;
 					}

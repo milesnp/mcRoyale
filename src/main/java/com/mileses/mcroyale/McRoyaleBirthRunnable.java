@@ -1,20 +1,20 @@
 package com.mileses.mcroyale;
 
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class McRoyaleBirthRunnable extends BukkitRunnable {
-private Player p;
+private String p;
 
-public McRoyaleBirthRunnable(Player player) {
-p = player;
+public McRoyaleBirthRunnable(String playerName) {
+p = playerName;
 }
 
 
 
 @Override
 public void run() {
-	p.setGameMode(GameMode.SPECTATOR);
+	Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "gamemode spectator " + p);
+	McRoyale.getLogr().info(p + " is now spectating.");
 }
 }
