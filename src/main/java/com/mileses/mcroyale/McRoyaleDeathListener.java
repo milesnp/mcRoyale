@@ -51,11 +51,7 @@ public class McRoyaleDeathListener implements Listener {
 					McRoyale.changeWins(killer, 1);
 					McRoyale.roundActive = false;
 					for (Player p : Bukkit.getOnlinePlayers()) {
-						int oldX = player.getLocation().getBlockX();
-						int oldZ = player.getLocation().getBlockZ();
-						int newY = player.getWorld().getHighestBlockAt(oldX, oldZ).getY();
-						Location newLocation = new Location(player.getWorld(), oldX, newY, oldZ);
-						player.teleport(newLocation);
+						Location newLocation = McRoyale.setPlayerDown(p);
 						p.setGameMode(GameMode.SURVIVAL);
 						p.setBedSpawnLocation(newLocation, false);
 					}

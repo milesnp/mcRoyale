@@ -17,6 +17,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
@@ -29,12 +30,17 @@ public final class McRoyale extends JavaPlugin {
 	private static McRoyale instance;
 	private static Logger logger;
 	private static ScoreboardManager scoreManager;
-	public static Objective royaleStat;
-	public static Scoreboard board;
+	public static Objective killStat;
+	public static Scoreboard killBoard;
+	public static Objective deathStat;
+	public static Scoreboard deathBoard;
+	public static Objective winStat;
+	public static Scoreboard winBoard;
 	public static boolean peaceTime;
 	public static boolean roundActive;
 	public HashMap<String, Boolean> playerList;
 	public static EbeanServer database;
+	public static BukkitTask statRunnable;
 
 	@Override
 	public void onEnable() {
@@ -193,7 +199,7 @@ public final class McRoyale extends JavaPlugin {
 					}
 					// check length is positive int and set
 					if (isInt(args[1]) && (Integer.parseInt(args[1]) >= 0)) {
-						if (Integer.parseInt(args[1]) < 5 || Integer.parseInt(args[1]) == 0) {
+						if (Integer.parseInt(args[1]) >= 5 || Integer.parseInt(args[1]) == 0) {
 							length = Integer.parseInt(args[1]);
 						} else {
 							sender.sendMessage("Length must be 0, greater than 5, \"auto\" or \"false\"");
@@ -213,9 +219,10 @@ public final class McRoyale extends JavaPlugin {
 							SetupPlayerScore(player);
 
 						}
+						
 					}
 					// start round
-
+					statRunnable = new McRoyaleStatRunnable(scoreManager).runTaskTimer(this, 0, 800);
 					McRoyaleRound.startRound(location, length, playerList, (Player) sender, peaceTimeArg);
 					return true;
 
@@ -294,28 +301,40 @@ public final class McRoyale extends JavaPlugin {
 	public void ScoreboardSetup() {
 		// set scoreboard, retrieve stats from database
 		scoreManager = Bukkit.getScoreboardManager();
-		board = scoreManager.getNewScoreboard();
-		royaleStat = board.registerNewObjective("royaleStat", "dummy");
-		royaleStat.setDisplayName("Stats");
-		royaleStat.setDisplaySlot(DisplaySlot.SIDEBAR);
-		Objective royaleHP = board.registerNewObjective("health", "health");
-		royaleHP.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+		killBoard = scoreManager.getNewScoreboard();
+		winBoard = scoreManager.getNewScoreboard();
+		deathBoard = scoreManager.getNewScoreboard();
+		killStat = killBoard.registerNewObjective("kills", "dummy");
+		killStat.setDisplayName("Kills");
+		killStat.setDisplaySlot(DisplaySlot.SIDEBAR);
+		winStat = killBoard.registerNewObjective("wins", "dummy");
+		winStat.setDisplayName("Wins");
+		winStat.setDisplaySlot(DisplaySlot.SIDEBAR);
+		deathStat = killBoard.registerNewObjective("deaths", "dummy");
+		deathStat.setDisplayName("Deaths");
+		deathStat.setDisplaySlot(DisplaySlot.SIDEBAR);
+		Objective royaleHPk = killBoard.registerNewObjective("health", "health");
+		Objective royaleHPw = winBoard.registerNewObjective("health", "health");
+		Objective royaleHPd = deathBoard.registerNewObjective("health", "health");
+		royaleHPk.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+		royaleHPw.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+		royaleHPd.setDisplaySlot(DisplaySlot.PLAYER_LIST);
 	}
 
 	public void SetupPlayerScore(Player player) {
-		player.setScoreboard(board);
-		logger.info("scoreboard set. getting kills..");
-		Score pkills = royaleStat.getScore(ChatColor.YELLOW + player.getName() + "'s Kills:");
+		
+		logger.info("Scoreboard switcher started");
+		Score pkills = killStat.getScore(player.getName());
 		int newscore = getStat(player, "kills");
 		logger.info("saving kills.." + Integer.toString(newscore));
 		pkills.setScore(newscore);
 
-		Score pwins = royaleStat.getScore(ChatColor.GREEN + player.getName() + "'s Wins:");
+		Score pwins = winStat.getScore(player.getName());
 		newscore = getStat(player, "wins");
 		logger.info("saving wins.." + Integer.toString(newscore));
 		pwins.setScore(newscore);
 
-		Score pdeaths = royaleStat.getScore(ChatColor.RED + player.getName() + "'s Deaths:");
+		Score pdeaths = deathStat.getScore(player.getName());
 		newscore = getStat(player, "deaths");
 		logger.info("saving deaths.." + Integer.toString(newscore));
 		pdeaths.setScore(newscore);
@@ -323,7 +342,7 @@ public final class McRoyale extends JavaPlugin {
 	}
 
 	public static void changeKills(Player player, int change) {
-		Score pkills = royaleStat.getScore(ChatColor.YELLOW + player.getName() + "'s Kills:");
+		Score pkills = killStat.getScore(player.getName());
 		int currentscore = pkills.getScore();
 		int newscore = currentscore + change;
 		pkills.setScore(newscore);
@@ -331,7 +350,7 @@ public final class McRoyale extends JavaPlugin {
 	}
 
 	public static void changeWins(Player player, int change) {
-		Score pwins = royaleStat.getScore(ChatColor.GREEN + player.getName() + "'s Wins:");
+		Score pwins = winStat.getScore(player.getName());
 		int currentscore = pwins.getScore();
 		int newscore = currentscore + change;
 		pwins.setScore(newscore);
@@ -339,7 +358,7 @@ public final class McRoyale extends JavaPlugin {
 	}
 
 	public static void changeDeaths(Player player, int change) {
-		Score pdeaths = royaleStat.getScore(ChatColor.RED + player.getName() + "'s Deaths:");
+		Score pdeaths = deathStat.getScore(player.getName());
 		int currentscore = pdeaths.getScore();
 		int newscore = currentscore + change;
 		pdeaths.setScore(newscore);

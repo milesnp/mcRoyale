@@ -30,7 +30,7 @@ public final class McRoyaleRound {
 		// calculate min distance between players
 		int distance = length / (list.size() + 1);
 		if (distance >= length / 2) {
-			distance = length / 2 - 1;
+			distance = length / 2 + 1;
 		}
 		if (length >= 5)
 			McRoyale.generateWalls(location, length);
