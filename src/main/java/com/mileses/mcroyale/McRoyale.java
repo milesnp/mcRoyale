@@ -10,6 +10,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +25,7 @@ import de.myzelyam.api.vanish.VanishAPI;
 public final class McRoyale extends JavaPlugin {
 	private static McRoyale instance;
 	private static Logger logger;
+	public static boolean peaceTime;
 	public static boolean roundActive;
 	public HashMap<String, Boolean> playerList;
 	
@@ -33,8 +36,10 @@ public final class McRoyale extends JavaPlugin {
 		logger = getLogger();
 		McRoyaleDeathListener mrdl = new McRoyaleDeathListener(this);
 		McRoyaleBirthListener mrbl = new McRoyaleBirthListener(this);
+		McRoyalePeaceListener mrpl = new McRoyalePeaceListener(this);
 		getServer().getPluginManager().registerEvents(mrdl, this);
-		getServer().getPluginManager().registerEvents(mrbl, this);;
+		getServer().getPluginManager().registerEvents(mrbl, this);
+		getServer().getPluginManager().registerEvents(mrpl, this);
 		for (Player x : Bukkit.getOnlinePlayers()) playerList.put(x.getName(), true);
 		playerList = new HashMap<String, Boolean>();
 		roundActive = false;
@@ -173,12 +178,17 @@ public final class McRoyale extends JavaPlugin {
 						}
 						
 						//check that peacetime is either "false" or a number
-						int peacetime;
 						int length;
+						int peaceTimeArg;
 						//set peacetime
-						if (isInt(args[2])) peacetime = Integer.parseInt(args[2]);
-						else if (args[2].equalsIgnoreCase("false")) peacetime = 0;
-						else return false;
+					      if (isInt(args[2]) && Integer.parseInt(args[2]) >= 0) {
+					          peaceTimeArg = Integer.parseInt(args[2]);
+					      }
+						else if (args[2].equalsIgnoreCase("false")) peaceTimeArg = 0;
+						else {
+							sender.sendMessage("Peace time must either be false or a positive integer.");
+							return false;
+						}
 						//check length is int and set
 						if (isInt(args[1])) length = Integer.parseInt(args[1]);
 						else if (args[1].equalsIgnoreCase("auto")) {
@@ -195,7 +205,7 @@ public final class McRoyale extends JavaPlugin {
 							}
 						//start round
 						generateWalls(location,length);
-						McRoyaleRound.startRound(location, length, playerList, (Player) sender, peacetime);
+						McRoyaleRound.startRound(location, length, playerList, (Player) sender, peaceTimeArg);
 						return true;
 						
 				}

@@ -2,17 +2,17 @@ package com.mileses.mcroyale;
 
 
 import java.util.HashMap;
-import java.util.HashSet;
-
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
+
 import de.myzelyam.api.vanish.VanishAPI;
 
 public final class McRoyaleRound {
 	
-	public static void startRound(Location location, int length, HashMap<String, Boolean> list, Player sender, int peacetime) {
+	public static void startRound(Location location, int length, HashMap<String, Boolean> list, Player sender, int peaceTimeArg) {
 
 		String playerString = "";
 		for (Player p : Bukkit.getOnlinePlayers()) {
@@ -45,6 +45,12 @@ public final class McRoyaleRound {
 		// set respawn location TODO make this work. probably just make listener for respawn event and tp to this point using hashmap
 		p.setBedSpawnLocation(p.getLocation(),true);
 	}
+	if (peaceTimeArg > 0){
+		McRoyale.peaceTime = true;
+	    Bukkit.broadcastMessage("Peace Time is active.");
+	     new McRoyalePeaceRunnable().runTaskLater(McRoyale.getInst(), peaceTimeArg*1200);
+	}
+
 	}
 	public static void clearInv(Player player){
 		player.getInventory().clear();

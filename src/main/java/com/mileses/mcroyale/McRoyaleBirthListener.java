@@ -1,7 +1,6 @@
 package com.mileses.mcroyale;
 
-
-
+import org.bukkit.GameMode;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerRespawnEvent;
@@ -24,7 +23,7 @@ public class McRoyaleBirthListener implements Listener{
 			if (!pl.playerList.containsKey(playername) || !pl.playerList.get(playername)) {
 				e.getPlayer().getInventory().addItem(CompassRadar.getTracker());
 				McRoyale.getLogr().info(e.getPlayer().getName() + " respawned.");
-				new McRoyaleBirthRunnable(e.getPlayer().getName()).runTaskLater(McRoyale.getInst(), 100L);
+				e.getPlayer().setGameMode(GameMode.SPECTATOR);
 			}
 		}
 	}
