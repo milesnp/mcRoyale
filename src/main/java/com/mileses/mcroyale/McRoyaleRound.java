@@ -2,11 +2,11 @@ package com.mileses.mcroyale;
 
 
 import java.util.HashMap;
+
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 
 import de.myzelyam.api.vanish.VanishAPI;
 

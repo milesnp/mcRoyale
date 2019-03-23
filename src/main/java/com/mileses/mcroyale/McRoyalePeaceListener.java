@@ -15,8 +15,8 @@ public class McRoyalePeaceListener implements Listener{
 	
  @EventHandler(priority = EventPriority.NORMAL)
     public void onEntityDamage(EntityDamageByEntityEvent e) {
-    	Bukkit.broadcastMessage(e.getEntity().getName() + " was damaged by " + e.getDamager().getName());
       if (McRoyale.peaceTime && e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
+    	Bukkit.broadcastMessage(e.getDamager().getName() + " sure looks like BooBoo the Fool! Peacetime is still active.");
         e.setCancelled(true);
         e.getEntity().sendMessage("Peacetime is active.");
         e.getDamager().sendMessage("Peacetime is active.");

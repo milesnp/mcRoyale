@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import de.myzelyam.api.vanish.VanishAPI;
 
 public class McRoyaleDeathListener implements Listener{
 	McRoyale pl;
@@ -32,12 +31,10 @@ public class McRoyaleDeathListener implements Listener{
 			Player killer = player.getKiller();
 			Bukkit.getLogger().info(player.getName()+" died by player " + killer.getName());
 			//check for SuperVanish installed, vanish if present
-			if (Bukkit.getPluginManager().isPluginEnabled("SuperVanish") || Bukkit.getPluginManager().isPluginEnabled("PremiumVanish")) {
-				player.sendMessage("You've been eliminated. Entering Spectator mode.");
-				}
-			else player.sendMessage("You've been eliminated. Please avoid interfering with play. Sorry you're far away now.");
+			player.sendMessage("You've been eliminated. Entering Spectator mode.");
 			killer.sendMessage("You killed " + player.getName() + ". Congrats!");
 			pl.playerList.put(player.getName(),false);
+			player.setGameMode(GameMode.SPECTATOR);
 			new McRoyaleDeathRunnable(world,location).runTaskLater(McRoyale.getInst(), 200L);
 
 			for (Player p : Bukkit.getOnlinePlayers()) {

@@ -1,6 +1,9 @@
 package com.mileses.mcroyale;
 
 
+import java.util.HashMap;
+import java.util.logging.Logger;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,17 +13,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Logger;
-import java.util.List;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import de.myzelyam.api.vanish.VanishAPI;
 
 public final class McRoyale extends JavaPlugin {
 	private static McRoyale instance;
@@ -35,10 +27,8 @@ public final class McRoyale extends JavaPlugin {
 		instance = this;
 		logger = getLogger();
 		McRoyaleDeathListener mrdl = new McRoyaleDeathListener(this);
-		McRoyaleBirthListener mrbl = new McRoyaleBirthListener(this);
 		McRoyalePeaceListener mrpl = new McRoyalePeaceListener(this);
 		getServer().getPluginManager().registerEvents(mrdl, this);
-		getServer().getPluginManager().registerEvents(mrbl, this);
 		getServer().getPluginManager().registerEvents(mrpl, this);
 		for (Player x : Bukkit.getOnlinePlayers()) playerList.put(x.getName(), true);
 		playerList = new HashMap<String, Boolean>();
@@ -83,7 +73,7 @@ public final class McRoyale extends JavaPlugin {
 					//check length if sender is Player
 					if ((sender instanceof Player) && (args.length == 2)) {
 							//init length at 3 for debug and to cheat around a compile error.
-							int iLength = 3;
+							int iLength;
 							//check for Integer
 							//automatically calculate length based on number of players. uses 10,000 blocks area per player.
 							if (args[1].equalsIgnoreCase("auto")) {
@@ -96,7 +86,10 @@ public final class McRoyale extends JavaPlugin {
 								return false;
 							}
 							else iLength = Integer.parseInt(args[1]);
-							
+							 if (iLength <=2) {
+								 sender.sendMessage("Length must be positive and larger than 2.");
+								 return false;
+							 }
 							generateWalls(((Player) sender).getLocation(), iLength);
 							return true;
 						}
@@ -110,6 +103,10 @@ public final class McRoyale extends JavaPlugin {
 								int iz;
 								if (isInt(args[1])) {
 									 iLength = Integer.parseInt(args[1]);
+									 if (iLength <=2) {
+										 sender.sendMessage("Length must be positive and larger than 2.");
+										 return false;
+									 }
 								}
 								//automatically calculate length based on number of players. uses 10,000 blocks area per player.
 								else if (args[1].equalsIgnoreCase("auto")) {
