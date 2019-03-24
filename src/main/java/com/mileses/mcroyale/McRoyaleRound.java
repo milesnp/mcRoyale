@@ -7,6 +7,8 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import org.bukkit.ChatColor;
+
 public final class McRoyaleRound {
 
 	public static void startRound(Location location, int length, HashMap<String, Boolean> list, Player sender,
@@ -49,9 +51,12 @@ public final class McRoyaleRound {
 		}
 		if (peaceTimeArg > 0) {
 			McRoyale.peaceTime = true;
-			Bukkit.broadcastMessage("Peace Time is active.");
+			Bukkit.broadcastMessage(ChatColor.RED + "Peace Time is active for " + ChatColor.DARK_GREEN
+					+ Integer.toString(peaceTimeArg) + ChatColor.RED + "minutes.");
 			new McRoyalePeaceRunnable().runTaskLater(McRoyale.getInst(), peaceTimeArg * 1200);
-		}
+		} else
+			Bukkit.broadcastMessage(
+					ChatColor.DARK_GREEN + "This round is without any Peace Time!! Players can be damaged.");
 
 	}
 

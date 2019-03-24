@@ -30,12 +30,16 @@ public final class McRoyale extends JavaPlugin {
 	private static McRoyale instance;
 	private static Logger logger;
 	private static ScoreboardManager scoreManager;
+	public static Scoreboard board;
 	public static Objective killStat;
-	public static Scoreboard killBoard;
 	public static Objective deathStat;
-	public static Scoreboard deathBoard;
 	public static Objective winStat;
-	public static Scoreboard winBoard;
+	public static Objective royaleHP;
+	public static Objective oreStat;
+	public static Objective ironStat;
+	public static Objective redstoneStat;
+	public static Objective goldStat;
+	public static Objective diamondStat;
 	public static boolean peaceTime;
 	public static boolean roundActive;
 	public HashMap<String, Boolean> playerList;
@@ -44,7 +48,6 @@ public final class McRoyale extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		// TODO initializaiton logic
 		instance = this;
 		logger = getLogger();
 		ScoreboardSetup();
@@ -62,7 +65,7 @@ public final class McRoyale extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		instance = null;
-		// TODO disable logic
+		logger = null;
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -219,10 +222,11 @@ public final class McRoyale extends JavaPlugin {
 							SetupPlayerScore(player);
 
 						}
-						
+
 					}
 					// start round
-					statRunnable = new McRoyaleStatRunnable(scoreManager).runTaskTimer(this, 0, 800);
+					logger.info("Scoreboard switcher started");
+					statRunnable = new McRoyaleStatRunnable().runTaskTimer(this, 400, 400);
 					McRoyaleRound.startRound(location, length, playerList, (Player) sender, peaceTimeArg);
 					return true;
 
@@ -301,31 +305,26 @@ public final class McRoyale extends JavaPlugin {
 	public void ScoreboardSetup() {
 		// set scoreboard, retrieve stats from database
 		scoreManager = Bukkit.getScoreboardManager();
-		killBoard = scoreManager.getNewScoreboard();
-		winBoard = scoreManager.getNewScoreboard();
-		deathBoard = scoreManager.getNewScoreboard();
-		killStat = killBoard.registerNewObjective("kills", "dummy");
-		killStat.setDisplayName("Kills");
-		killStat.setDisplaySlot(DisplaySlot.SIDEBAR);
-		winStat = killBoard.registerNewObjective("wins", "dummy");
-		winStat.setDisplayName("Wins");
+		board = scoreManager.getNewScoreboard();
+		killStat = board.registerNewObjective("kills", "dummy");
+		killStat.setDisplayName(ChatColor.GREEN + "Kills");
+		winStat = board.registerNewObjective("wins", "dummy");
+		winStat.setDisplayName(ChatColor.GOLD + "Wins");
 		winStat.setDisplaySlot(DisplaySlot.SIDEBAR);
-		deathStat = killBoard.registerNewObjective("deaths", "dummy");
-		deathStat.setDisplayName("Deaths");
-		deathStat.setDisplaySlot(DisplaySlot.SIDEBAR);
-		Objective royaleHPk = killBoard.registerNewObjective("health", "health");
-		Objective royaleHPw = winBoard.registerNewObjective("health", "health");
-		Objective royaleHPd = deathBoard.registerNewObjective("health", "health");
-		royaleHPk.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-		royaleHPw.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-		royaleHPd.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+		deathStat = board.registerNewObjective("deaths", "dummy");
+		deathStat.setDisplayName(ChatColor.DARK_RED + "Deaths");
+		royaleHP = board.registerNewObjective("health", "health");
+		royaleHP.setDisplaySlot(DisplaySlot.PLAYER_LIST);
+		oreStat = board.registerNewObjective("ore", "minecraft.mined:minecraft.iron_ore");
+		oreStat.setDisplayName(ChatColor.RED + "Iron Ores Mined");
 	}
 
 	public void SetupPlayerScore(Player player) {
-		
-		logger.info("Scoreboard switcher started");
+		player.setScoreboard(board);
+		int newscore;
+
 		Score pkills = killStat.getScore(player.getName());
-		int newscore = getStat(player, "kills");
+		newscore = getStat(player, "kills");
 		logger.info("saving kills.." + Integer.toString(newscore));
 		pkills.setScore(newscore);
 
@@ -339,6 +338,8 @@ public final class McRoyale extends JavaPlugin {
 		logger.info("saving deaths.." + Integer.toString(newscore));
 		pdeaths.setScore(newscore);
 
+		Score pOres = oreStat.getScore(player.getName());
+		pOres.setScore(0);
 	}
 
 	public static void changeKills(Player player, int change) {
@@ -404,6 +405,7 @@ public final class McRoyale extends JavaPlugin {
 		else
 			return mcRoyaleStat.getValue();
 	}
+
 	public static Location setPlayerDown(Player p) {
 		int oldX = p.getLocation().getBlockX();
 		int oldZ = p.getLocation().getBlockZ();

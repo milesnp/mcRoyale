@@ -9,6 +9,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
+import net.md_5.bungee.api.ChatColor;
+
 public class McRoyaleDeathListener implements Listener {
 	McRoyale pl;
 
@@ -21,8 +23,6 @@ public class McRoyaleDeathListener implements Listener {
 		// harvest info
 		if (McRoyale.roundActive) {
 			int activeplayers = 0;
-			// report for debug
-			Bukkit.getLogger().info("death occurs");
 			// get player and location
 			Player player = e.getEntity();
 			final Location location = player.getLocation();
@@ -30,13 +30,12 @@ public class McRoyaleDeathListener implements Listener {
 			// check if killed by a player
 			if ((player.getKiller() instanceof Player)) {
 				Player killer = player.getKiller();
-				// check for SuperVanish installed, vanish if present
-				player.sendMessage("You've been eliminated. Entering Spectator mode.");
+				// congratulate player, set player to inactive
 				killer.sendMessage("You killed " + player.getName() + ". Congrats!");
 				pl.playerList.put(player.getName(), false);
 				McRoyale.changeDeaths(player, 1);
 				McRoyale.changeKills(killer, 1);
-				player.setGameMode(GameMode.SPECTATOR);
+				
 				new McRoyaleDeathRunnable(world, location).runTaskLater(McRoyale.getInst(), 200L);
 
 				for (Player p : Bukkit.getOnlinePlayers()) {
@@ -47,20 +46,35 @@ public class McRoyaleDeathListener implements Listener {
 						McRoyale.getLogr().info("player is inactive: " + p.getName());
 				}
 				if (activeplayers == 1) {
-					killer.sendMessage("VICTORY ROYALE!");
-					McRoyale.changeWins(killer, 1);
-					McRoyale.roundActive = false;
-					for (Player p : Bukkit.getOnlinePlayers()) {
-						Location newLocation = McRoyale.setPlayerDown(p);
-						p.setGameMode(GameMode.SURVIVAL);
-						p.setBedSpawnLocation(newLocation, false);
-					}
+					endRound(killer);
+					player.sendMessage("You've been eliminated and the round is over!");
 				}
-			} else {
-				McRoyale.getLogr().info("players living: " + Integer.toString(activeplayers));
-				Bukkit.getLogger().info(player.getName() + " killed not by player");
+				else { 
+					player.sendMessage("You've been eliminated. Entering Spectator mode.");
+					player.setGameMode(GameMode.SPECTATOR);
+				}
+			} 
+			else 
 				player.sendMessage("You were not killed by a player. You are still in play.");
+			
+		}
+	}
+	public void endRound(Player winner) {
+		winner.sendMessage("VICTORY ROYALE!");
+		Bukkit.broadcastMessage(ChatColor.GOLD + winner.getName() + ChatColor.WHITE + " is the winner!");
+		McRoyale.changeWins(winner, 1);
+		McRoyale.roundActive = false;
+		Location newLocation;
+		for (Player p : Bukkit.getOnlinePlayers()) {
+			if (p.getGameMode() != GameMode.SURVIVAL) {
+				newLocation = McRoyale.setPlayerDown(p);
+				p.setGameMode(GameMode.SURVIVAL);
+				
 			}
+			else 
+				newLocation = p.getLocation();
+			p.setBedSpawnLocation(newLocation, false);
+			p.setScoreboard(McRoyale.getScoreManager().getNewScoreboard());
 		}
 	}
 

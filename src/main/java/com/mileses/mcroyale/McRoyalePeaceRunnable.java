@@ -1,6 +1,7 @@
 package com.mileses.mcroyale;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class McRoyalePeaceRunnable extends BukkitRunnable {
@@ -12,6 +13,6 @@ public class McRoyalePeaceRunnable extends BukkitRunnable {
 	@Override
 	public void run() {
 		McRoyale.peaceTime = false;
-		Bukkit.broadcastMessage("Peacetime has ended.");
+		Bukkit.broadcastMessage(ChatColor.GREEN + "Peacetime has ended.");
 	}
 }
