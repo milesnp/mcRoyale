@@ -35,30 +35,26 @@ public class McRoyaleDeathListener implements Listener {
 				pl.playerList.put(player.getName(), false);
 				McRoyale.changeDeaths(player, 1);
 				McRoyale.changeKills(killer, 1);
-				
+
 				new McRoyaleDeathRunnable(world, location).runTaskLater(McRoyale.getInst(), 200L);
 
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					if (pl.playerList.containsKey(p.getName()) && pl.playerList.get(p.getName())) {
-						McRoyale.getLogr().info("player is active: " + p.getName());
+					if (pl.playerList.containsKey(p.getName()) && pl.playerList.get(p.getName()))
 						activeplayers++;
-					} else
-						McRoyale.getLogr().info("player is inactive: " + p.getName());
+					if (activeplayers == 1) {
+						endRound(killer);
+						player.sendMessage("You've been eliminated and the round is over!");
+					} else {
+						player.sendMessage("You've been eliminated. Entering Spectator mode.");
+						player.setGameMode(GameMode.SPECTATOR);
+					}
 				}
-				if (activeplayers == 1) {
-					endRound(killer);
-					player.sendMessage("You've been eliminated and the round is over!");
-				}
-				else { 
-					player.sendMessage("You've been eliminated. Entering Spectator mode.");
-					player.setGameMode(GameMode.SPECTATOR);
-				}
-			} 
-			else 
+			} else
 				player.sendMessage("You were not killed by a player. You are still in play.");
-			
+
 		}
 	}
+
 	public void endRound(Player winner) {
 		winner.sendMessage("VICTORY ROYALE!");
 		Bukkit.broadcastMessage(ChatColor.GOLD + winner.getName() + ChatColor.WHITE + " is the winner!");
@@ -69,9 +65,7 @@ public class McRoyaleDeathListener implements Listener {
 			if (p.getGameMode() != GameMode.SURVIVAL) {
 				newLocation = McRoyale.setPlayerDown(p);
 				p.setGameMode(GameMode.SURVIVAL);
-				
-			}
-			else 
+			} else
 				newLocation = p.getLocation();
 			p.setBedSpawnLocation(newLocation, false);
 			p.setScoreboard(McRoyale.getScoreManager().getNewScoreboard());

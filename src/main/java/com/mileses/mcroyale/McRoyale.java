@@ -338,8 +338,7 @@ public final class McRoyale extends JavaPlugin {
 		logger.info("saving deaths.." + Integer.toString(newscore));
 		pdeaths.setScore(newscore);
 
-		Score pOres = oreStat.getScore(player.getName());
-		pOres.setScore(0);
+
 	}
 
 	public static void changeKills(Player player, int change) {
