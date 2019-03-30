@@ -36,15 +36,12 @@ public final class McRoyale extends JavaPlugin {
 	public static Objective winStat;
 	public static Objective royaleHP;
 	public static Objective oreStat;
-	public static Objective ironStat;
-	public static Objective redstoneStat;
-	public static Objective goldStat;
-	public static Objective diamondStat;
 	public static boolean peaceTime;
 	public static boolean roundActive;
 	public HashMap<String, Boolean> playerList;
 	public static EbeanServer database;
 	public static BukkitTask statRunnable;
+	public static BukkitTask tpRunnable;
 
 	@Override
 	public void onEnable() {
@@ -165,9 +162,11 @@ public final class McRoyale extends JavaPlugin {
 					Bukkit.broadcastMessage("Starting round with no automation. Good luck!");
 				}
 				// end manual start command
-
+		 
+			
+				
 				// check for round command and for args
-				if (args[0].equalsIgnoreCase("round") && args.length >= 3) {
+				if ((args[0].equalsIgnoreCase("round") ||args[0].equalsIgnoreCase("tpround"))&& args.length >= 3) {
 					Location location;
 					// check that optional x z args are missing
 					if ((args.length < 5)) {
@@ -228,6 +227,9 @@ public final class McRoyale extends JavaPlugin {
 					logger.info("Scoreboard switcher started");
 					statRunnable = new McRoyaleStatRunnable().runTaskTimer(this, 400, 400);
 					McRoyaleRound.startRound(location, length, playerList, (Player) sender, peaceTimeArg);
+					if (args[0].equalsIgnoreCase("tpround")) {
+						tpRunnable = new McRoyaleTPRunnable(this).runTaskLater(this, 120);
+					}
 					return true;
 
 				}
@@ -315,8 +317,8 @@ public final class McRoyale extends JavaPlugin {
 		deathStat.setDisplayName(ChatColor.DARK_RED + "Deaths");
 		royaleHP = board.registerNewObjective("health", "health");
 		royaleHP.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-		oreStat = board.registerNewObjective("ore", "minecraft.mined:minecraft.iron_ore");
-		oreStat.setDisplayName(ChatColor.RED + "Iron Ores Mined");
+		oreStat = board.registerNewObjective("ore", "dummy");
+		oreStat.setDisplayName(ChatColor.RED + "Ores Mined");
 	}
 
 	public void SetupPlayerScore(Player player) {
