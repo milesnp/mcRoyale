@@ -29,6 +29,7 @@ public final class McRoyaleRound {
 		}
 		McRoyale.getLogr().info("start round with players: " + playerString);
 		McRoyale.roundActive = true;
+		McRoyale.getLogr().info(Boolean.toString(McRoyale.roundActive) + "is the setting of round active.");
 		// calculate min distance between players
 		int distance = length / (list.size() + 1);
 		if (distance >= length / 2) {

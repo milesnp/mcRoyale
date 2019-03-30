@@ -41,16 +41,19 @@ public final class McRoyale extends JavaPlugin {
 	public HashMap<String, Boolean> playerList;
 	public static EbeanServer database;
 	public static BukkitTask statRunnable;
-	public static BukkitTask tpRunnable;
-
+	public static BukkitTask tpWarningRunnable;
+	public int tpTimer = 5;
+	String tpTimerString = " minutes.";
 	@Override
 	public void onEnable() {
 		instance = this;
 		logger = getLogger();
 		ScoreboardSetup();
 		setupDatabase();
+		McRoyaleOreListener mrol = new McRoyaleOreListener(this);
 		McRoyaleDeathListener mrdl = new McRoyaleDeathListener(this);
 		McRoyalePeaceListener mrpl = new McRoyalePeaceListener(this);
+		getServer().getPluginManager().registerEvents(mrol, this);
 		getServer().getPluginManager().registerEvents(mrdl, this);
 		getServer().getPluginManager().registerEvents(mrpl, this);
 		for (Player x : Bukkit.getOnlinePlayers())
@@ -84,7 +87,21 @@ public final class McRoyale extends JavaPlugin {
 						sender.sendMessage("/royale help wall or /royale help round");
 					return true;
 				}
-
+				
+				//check for tp timer command
+				if (args[0].equalsIgnoreCase("tptimer")) {
+					if (args.length > 1) {
+						if (isInt(args[1]) && Integer.parseInt(args[1]) > 0) {
+							if (args[1] == "1") tpTimerString = " minute.";
+							else tpTimerString = " minutes.";
+							sender.sendMessage("Teleport timer set to " + args[1] + tpTimerString);
+							tpTimer = Integer.parseInt(args[1]);
+							return true;
+						}
+					}
+				}
+				//end tp timer command
+				
 				// check for wall command
 				if (args[0].equalsIgnoreCase("wall")) {
 					// check length if sender is Player
@@ -162,8 +179,7 @@ public final class McRoyale extends JavaPlugin {
 					Bukkit.broadcastMessage("Starting round with no automation. Good luck!");
 				}
 				// end manual start command
-		 
-			
+	
 				
 				// check for round command and for args
 				if ((args[0].equalsIgnoreCase("round") ||args[0].equalsIgnoreCase("tpround"))&& args.length >= 3) {
@@ -228,7 +244,8 @@ public final class McRoyale extends JavaPlugin {
 					statRunnable = new McRoyaleStatRunnable().runTaskTimer(this, 400, 400);
 					McRoyaleRound.startRound(location, length, playerList, (Player) sender, peaceTimeArg);
 					if (args[0].equalsIgnoreCase("tpround")) {
-						tpRunnable = new McRoyaleTPRunnable(this).runTaskLater(this, 120);
+						Bukkit.broadcastMessage("Players will be teleported to the surface every " + ChatColor.RED + Integer.toString(tpTimer) + tpTimerString);
+						tpWarningRunnable = new McRoyaleTPWarningRunnable(this, tpTimer).runTaskLater(this, ((tpTimer*1200) - 600));
 					}
 					return true;
 
@@ -339,7 +356,8 @@ public final class McRoyale extends JavaPlugin {
 		newscore = getStat(player, "deaths");
 		logger.info("saving deaths.." + Integer.toString(newscore));
 		pdeaths.setScore(newscore);
-
+		
+		oreStat.getScore(player.getName()).setScore(0);
 
 	}
 
