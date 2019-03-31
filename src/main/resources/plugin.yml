@@ -3,6 +3,7 @@ main: com.mileses.mcroyale.McRoyale
 version: 0.01
 author: nick
 database: true
+softdepend: [CompassRadar]
 commands:
   royale:
     description: Top level hunger games command

@@ -43,7 +43,7 @@ public final class McRoyaleRound {
 		String commandString = "spreadplayers " + Integer.toString(location.getBlockX()) + " "
 				+ Integer.toString(location.getBlockZ()) + " " + Integer.toString(distance) + " "
 				+ Integer.toString((length / 2) - 1) + " false" + playerString;
-		McRoyale.getLogr().info(commandString);
+		
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), commandString);
 		McRoyale.getLogr().info("players spread.");
 		// set bed spawns

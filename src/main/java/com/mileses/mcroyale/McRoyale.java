@@ -50,9 +50,11 @@ public final class McRoyale extends JavaPlugin {
 		logger = getLogger();
 		ScoreboardSetup();
 		setupDatabase();
+		McRoyaleRespawnListener mrrl = new McRoyaleRespawnListener(this);
 		McRoyaleOreListener mrol = new McRoyaleOreListener(this);
 		McRoyaleDeathListener mrdl = new McRoyaleDeathListener(this);
 		McRoyalePeaceListener mrpl = new McRoyalePeaceListener(this);
+		getServer().getPluginManager().registerEvents(mrrl, this);
 		getServer().getPluginManager().registerEvents(mrol, this);
 		getServer().getPluginManager().registerEvents(mrdl, this);
 		getServer().getPluginManager().registerEvents(mrpl, this);

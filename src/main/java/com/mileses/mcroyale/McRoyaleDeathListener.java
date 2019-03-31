@@ -1,6 +1,7 @@
 package com.mileses.mcroyale;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -9,7 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
-import net.md_5.bungee.api.ChatColor;
+
 
 public class McRoyaleDeathListener implements Listener {
 	McRoyale pl;
@@ -52,7 +53,7 @@ public class McRoyaleDeathListener implements Listener {
 						player.sendMessage("You've been eliminated and the round is over!");
 					} else {
 						player.sendMessage("You've been eliminated. Entering Spectator mode.");
-						player.setGameMode(GameMode.SPECTATOR);
+						//player.setGameMode(GameMode.SPECTATOR);
 					}
 				}
 			 else
