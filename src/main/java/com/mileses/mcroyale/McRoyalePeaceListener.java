@@ -18,7 +18,7 @@ public class McRoyalePeaceListener implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onEntityDamage(EntityDamageByEntityEvent e) {
 		if (McRoyale.roundActive) {
-			if (McRoyale.peaceTime && e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
+			if (McRoyale.peaceTimeActive && e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
 				Bukkit.broadcastMessage(ChatColor.RED + e.getDamager().getName() + ChatColor.WHITE
 						+ " sure looks like BooBoo the Fool!");
 				e.setCancelled(true);

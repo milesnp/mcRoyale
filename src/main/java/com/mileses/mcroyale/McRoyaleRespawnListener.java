@@ -17,10 +17,10 @@ public class McRoyaleRespawnListener implements Listener {
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e) {
 		if (McRoyale.roundActive) {
-			
-			if (!pl.playerList.containsKey(e.getPlayer().getName()) || (pl.playerList.containsKey(e.getPlayer().getName()) && !pl.playerList.get(e.getPlayer().getName()))) {
+			//todo Adapt for new round system
+			//if (!pl.playerList.containsKey(e.getPlayer().getName()) || (pl.playerList.containsKey(e.getPlayer().getName()) && !pl.playerList.get(e.getPlayer().getName()))) {
 				new McRoyaleRespawnRunnable(e.getPlayer(), pl).runTaskLater(pl,10);
-			}
+			//}
 		}
 		
 	}

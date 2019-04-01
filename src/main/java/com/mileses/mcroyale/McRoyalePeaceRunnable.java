@@ -12,7 +12,7 @@ public class McRoyalePeaceRunnable extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		McRoyale.peaceTime = false;
+		McRoyale.peaceTimeActive = false;
 		Bukkit.broadcastMessage(ChatColor.GREEN + "Peacetime has ended.");
 	}
 }

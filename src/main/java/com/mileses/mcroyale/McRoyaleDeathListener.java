@@ -1,5 +1,7 @@
 package com.mileses.mcroyale;
 
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -38,18 +40,21 @@ public class McRoyaleDeathListener implements Listener {
 				Player killer = player.getKiller();
 				// congratulate player, set player to inactive
 				killer.sendMessage("You killed " + player.getName() + ". Congrats!");
-				pl.playerList.put(player.getName(), false);
+				pl.currentRound.activePlayers.put(player.getUniqueId(), false);
 				McRoyale.changeDeaths(player, 1);
 				McRoyale.changeKills(killer, 1);
 
 				new McRoyaleDeathRunnable(world, location).runTaskLater(McRoyale.getInst(), 200L);
 				activeplayers = 0;
+				UUID lastActive = killer.getUniqueId();
 				for (Player p : Bukkit.getOnlinePlayers()) {
-					if (pl.playerList.containsKey(p.getName()) && pl.playerList.get(p.getName()))
+					if (pl.currentRound.activePlayers.containsKey(p.getUniqueId()) && pl.currentRound.activePlayers.get(p.getUniqueId())) {
 						activeplayers++;
+						lastActive = player.getUniqueId();
+					}
 				}
 					if (activeplayers == 1) {
-						endRound(killer);
+						pl.currentRound.endRound(lastActive);
 						player.sendMessage("You've been eliminated and the round is over!");
 					} else {
 						player.sendMessage("You've been eliminated. Entering Spectator mode.");

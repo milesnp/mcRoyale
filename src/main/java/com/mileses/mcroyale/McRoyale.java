@@ -3,6 +3,7 @@ package com.mileses.mcroyale;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.persistence.PersistenceException;
@@ -11,10 +12,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -30,20 +34,34 @@ public final class McRoyale extends JavaPlugin {
 	private static McRoyale instance;
 	private static Logger logger;
 	private static ScoreboardManager scoreManager;
+	static boolean debugActive = false;
 	public static Scoreboard board;
 	public static Objective killStat;
 	public static Objective deathStat;
 	public static Objective winStat;
 	public static Objective royaleHP;
 	public static Objective oreStat;
-	public static boolean peaceTime;
+	public static boolean peaceTimeActive;
 	public static boolean roundActive;
-	public HashMap<String, Boolean> playerList;
+	public static HashMap<UUID, Boolean> playerOpts;
 	public static EbeanServer database;
 	public static BukkitTask statRunnable;
 	public static BukkitTask tpWarningRunnable;
 	public int tpTimer = 5;
 	String tpTimerString = " minutes.";
+	public static World royaleWorld;
+	//setup parameters with defaults:
+	boolean defwalls = true;
+	boolean defpeace = false;
+	boolean deftele = false;
+	int defwallLength = 0;
+	//now in seconds
+	int defpeaceTime = 60; //one minute
+	int defteleTime = 300; // 5 minutes
+	McRoyaleRoundObject currentRound;
+	
+	
+	
 	@Override
 	public void onEnable() {
 		instance = this;
@@ -58,9 +76,9 @@ public final class McRoyale extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(mrol, this);
 		getServer().getPluginManager().registerEvents(mrdl, this);
 		getServer().getPluginManager().registerEvents(mrpl, this);
+		playerOpts = new HashMap<UUID, Boolean>();
 		for (Player x : Bukkit.getOnlinePlayers())
-			playerList.put(x.getName(), true);
-		playerList = new HashMap<String, Boolean>();
+			playerOpts.put(x.getUniqueId(), true);
 		roundActive = false;
 	}
 
@@ -85,10 +103,41 @@ public final class McRoyale extends JavaPlugin {
 							sender.sendMessage("/royale round <wall length> <peacetime in ticks or false> [x z]");
 							return true;
 						}
+						if (args[1].equalsIgnoreCase("newround")) {
+							sender.sendMessage("/royale newround length peacetime tptime genWalls? x z world");
+						}
 					} else
 						sender.sendMessage("/royale help wall or /royale help round");
 					return true;
 				}
+				//check for debug command
+				if (args[0].equalsIgnoreCase("debug")) {
+					debugActive = !debugActive;
+					sender.sendMessage("Debug is now " + Boolean.toString(debugActive));
+				}
+				//end debug command
+				
+				//check for get world command
+				if (args[0].equalsIgnoreCase("world")) {
+					royaleWorld = getRoyaleWorld();
+					if (sender instanceof Player)
+						((Player) sender).teleport(royaleWorld.getSpawnLocation());
+				}
+				//end get world command
+				
+				//check for set world command
+				if (args[0].equalsIgnoreCase("setworld")) {
+					if (sender instanceof Player) {
+						royaleWorld = ((Player) sender).getWorld();
+						return true;
+					}
+					else 
+						{
+						sender.sendMessage("Player only command");
+						return false;
+					}
+				}
+				//end set world command
 				
 				//check for tp timer command
 				if (args[0].equalsIgnoreCase("tptimer")) {
@@ -181,7 +230,117 @@ public final class McRoyale extends JavaPlugin {
 					Bukkit.broadcastMessage("Starting round with no automation. Good luck!");
 				}
 				// end manual start command
-	
+				//check for new round command
+				if (args[0].equalsIgnoreCase("newround")) {
+					int argsLength = args.length;
+					Location location;
+					//setup parameters with defaults:
+					World world;
+					boolean walls = defwalls;
+					boolean peace = defpeace;
+					boolean tele = deftele;
+					int x= 0;
+					int z = 0;
+					int wallLength =defwallLength;
+					//now in seconds
+					int peaceTime = defpeaceTime; //one minute
+					int teleTime = defteleTime; // 5 minutes
+					// /royale 0 		1	   2		 3		4 		 5 6 7
+					// /royale newround length peacetime tptime genWalls? x z world
+					
+					// get length if specified, 0 if auto.
+					if (argsLength >= 2) {
+						if (args[1].equalsIgnoreCase("auto") )
+							wallLength = 0;
+						else if (args[1].equalsIgnoreCase("false"))
+							walls = false;
+						else if (isInt(args[1]) && Integer.parseInt(args[1]) > 0) {
+							wallLength = Integer.parseInt(args[1]);
+						}
+						else {
+							sender.sendMessage("Wall length should be \"false\", \"auto\", or positive.");
+							return false;
+						}
+					}
+					//get peacetime
+					if (argsLength >= 3) {
+						if (args[2].equalsIgnoreCase("false"))
+							peace = false;
+						else if (isInt(args[2]) && Integer.parseInt(args[2]) > 0)
+								peaceTime = Integer.parseInt(args[2]);
+						else {
+							sender.sendMessage("Peace time should be \"false\" or positive.");
+							return false;
+						}
+					}
+					//get tptime
+					if (argsLength >= 4) {
+						if (args[3].equalsIgnoreCase("false"))
+							tele = false;
+						else if (isInt(args[3]) && Integer.parseInt(args[3]) > 0) 
+							teleTime = Integer.parseInt(args[3]);
+						else {
+							sender.sendMessage("Teleport time should be \"false\" or positive.");
+							return false;
+						}
+					}
+					//get genWalls? default true.
+					if (argsLength >= 5) {
+						if (args[4].equalsIgnoreCase("false")) {
+							walls = false;
+						}
+						else if (args[4].equalsIgnoreCase("true"))
+							walls = true;
+						else {
+							sender.sendMessage("Generate Walls? should be true or false.");
+						}
+					}
+					
+					//get x z
+					if (argsLength == 6) {
+						sender.sendMessage("x and z must both be present.");
+						return false;
+					}
+					else location = ((Player) sender).getLocation();
+					if (argsLength >= 7) {
+						if (isInt(args[5]) && isInt(args[6])) {
+							x = Integer.parseInt(args[5]);
+							z = Integer.parseInt(args[6]);
+						}
+						else {
+							sender.sendMessage("x and z must be integers.");
+							return false;
+						}
+						world = ((Player) sender).getWorld();
+					}
+					else location = ((Player) sender).getLocation();
+					//get world
+					if (argsLength >= 8) {
+						world = Bukkit.getWorld(args[7]);
+						if(world == null){
+							sender.sendMessage("The world \"" + args[7] +"\" does not exist.");
+							if (args[7].equalsIgnoreCase("royale")) {
+								sender.sendMessage("Royale world has not been generated. Generating now.");
+								sender.sendMessage("Please re-run your round start command after a few seconds.");
+								getRoyaleWorld();
+							}
+							return false;
+						}
+						location = new Location(world, x, 0, z);
+					}
+					//populate list
+					for (Player player : Bukkit.getOnlinePlayers()) {
+						if (!playerOpts.containsKey(player.getUniqueId())) {
+							playerOpts.put(player.getUniqueId(), true);
+						}
+					}
+					
+					//create round
+					currentRound = new McRoyaleRoundObject(getInst(), walls, wallLength, peace, peaceTime, tele, teleTime, location);
+					currentRound.startRound();
+					
+					return true;					
+				}
 				
 				// check for round command and for args
 				if ((args[0].equalsIgnoreCase("round") ||args[0].equalsIgnoreCase("tpround"))&& args.length >= 3) {
@@ -235,19 +394,17 @@ public final class McRoyale extends JavaPlugin {
 					// list all players
 					for (Player player : Bukkit.getOnlinePlayers()) {
 						if (player instanceof Player) {
-							playerList.put(player.getName(), true);
+							playerOpts.put(player.getUniqueId(), true);
 							SetupPlayerScore(player);
-
 						}
-
 					}
 					// start round
 					logger.info("Scoreboard switcher started");
 					statRunnable = new McRoyaleStatRunnable().runTaskTimer(this, 400, 400);
-					McRoyaleRound.startRound(location, length, playerList, (Player) sender, peaceTimeArg);
+					McRoyaleRound.startRound(location, length, playerOpts, (Player) sender, peaceTimeArg);
 					if (args[0].equalsIgnoreCase("tpround")) {
 						Bukkit.broadcastMessage("Players will be teleported to the surface every " + ChatColor.RED + Integer.toString(tpTimer) + tpTimerString);
-						tpWarningRunnable = new McRoyaleTPWarningRunnable(this, tpTimer).runTaskLater(this, ((tpTimer*1200) - 600));
+						//tpWarningRunnable = new McRoyaleTPWarningRunnable(this, tpTimer).runTaskLater(this, ((tpTimer*1200) - 600));
 					}
 					return true;
 
@@ -315,8 +472,9 @@ public final class McRoyale extends JavaPlugin {
 		return instance;
 	}
 
-	public static Logger getLogr() {
-		return logger;
+	public static void sendDebug(String msg) {
+		if (debugActive)
+			logger.info(msg);
 	}
 
 	public static ScoreboardManager getScoreManager() {
@@ -434,5 +592,15 @@ public final class McRoyale extends JavaPlugin {
 		Location newLocation = new Location(p.getWorld(), oldX, newY, oldZ);
 		p.teleport(newLocation);
 		return newLocation;
+	}
+	public static World getRoyaleWorld() {
+		World world = Bukkit.getWorld("royale");
+		if(world == null){
+		WorldCreator creator = new WorldCreator("royale");
+		creator.environment(World.Environment.NORMAL);
+		creator.generateStructures(true);
+		world = creator.createWorld();
+		}
+		return world;
 	}
 }

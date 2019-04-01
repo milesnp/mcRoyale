@@ -7,12 +7,14 @@ import org.bukkit.scheduler.BukkitTask;
 
 
 public class McRoyaleTPWarningRunnable extends BukkitRunnable {
+	McRoyaleRoundObject currentRound;
 	McRoyale pl;
 	int tpTimer;
 	BukkitTask tpRunnable;
-	public McRoyaleTPWarningRunnable(McRoyale pl, int tpTimer) {
+	public McRoyaleTPWarningRunnable(McRoyaleRoundObject currentRound, McRoyale pl, int tpTimer) {
 		this.pl = pl;
 		this.tpTimer = tpTimer;
+		this.currentRound = currentRound;
 	}
 
 	@Override
